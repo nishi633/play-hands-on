@@ -13,7 +13,7 @@ import scala.language.postfixOps
 - インスタンスを作る時にnewが必要なくなる(val todo = Todo())
 - equals,hashCode,toStringなどが実装される
 */
-case class Todo(name: String)
+case class Todo(id: Option[Long], name: String)
 
 @javax.inject.Singleton
 class TodoService @Inject() (dbapi: DBApi) {
@@ -22,8 +22,9 @@ class TodoService @Inject() (dbapi: DBApi) {
   private val db = dbapi.database("default")
 
   val simple = {
+    get[Option[Long]]("todo.id") ~
     get[String]("todo.name") map {
-      case name => Todo(name)
+      case id~name => Todo(id, name)
     }
   }
 
@@ -41,4 +42,42 @@ class TodoService @Inject() (dbapi: DBApi) {
 
   }
 
+  def insert(todo: Todo) = {
+    db.withConnection { implicit connection =>
+      SQL(
+        """
+        insert into todo values ((select next value for todo_seq), {name})
+        """
+      ).on(
+        'name -> todo.name
+      ).executeUpdate()
+    }
+  }
+
+  def findById(id: Long): Option[Todo] = {
+    db.withConnection { implicit connection =>
+      SQL("select * from todo where id = {id}").on('id -> id).as(simple.singleOpt)
+    }
+  }
+
+  def update(id: Long, todo: Todo) = {
+    db.withConnection { implicit connection =>
+      SQL(
+        """
+          update todo
+          set name = {name}
+          where id = {id}
+        """
+      ).on(
+        'id -> id,
+        'name -> todo.name
+      ).executeUpdate()
+    }
+  }
+
+  def delete(id: Long) = {
+    db.withConnection { implicit connection =>
+      SQL("delete from todo where id = {id}").on('id -> id).executeUpdate()
+    }
+  }
 }
