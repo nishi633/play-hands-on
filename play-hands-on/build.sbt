@@ -15,3 +15,9 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3
 
 // Adds additional packages into conf/routes
 // play.sbt.routes.RoutesKeys.routesImport += "com.example.binders._"
+
+// DB setting
+libraryDependencies += jdbc
+libraryDependencies += evolutions
+libraryDependencies += "org.playframework.anorm" %% "anorm" % "2.6.4"
+libraryDependencies += "com.h2database" % "h2" % "1.4.196"

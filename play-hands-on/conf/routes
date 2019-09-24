@@ -5,6 +5,7 @@
 
 GET     /todo/helloworld            controllers.TodoController.helloworld()
 GET     /todo                       controllers.TodoController.list()
+POST    /todo                       controllers.TodoController.todoAdd()
 GET     /todo/new                   controllers.TodoController.todoNew()
 
 # Map static resources from the /public folder to the /assets URL path
